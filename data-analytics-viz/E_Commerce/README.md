@@ -1,4 +1,5 @@
 <b>Background</b>
+
 Sales analysis is commonly used in companies to identiy trends in sales. his data is perfectly curated to perform sales analysis. We have an e-commerce sales dataset from India with 3 csv files -List of Orders, Order details, Sales target.
 
 What's inside?
