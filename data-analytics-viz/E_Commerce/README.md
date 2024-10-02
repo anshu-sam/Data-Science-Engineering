@@ -27,4 +27,4 @@ Here are some of the questions we will be answering:
 8. What has the sale,profit been over the few months and its growth percentage over time? 
 
 Modelling:
-Write a model to predict hte sales for the next few months.
+Write a model to predict the sales for the next few months.
