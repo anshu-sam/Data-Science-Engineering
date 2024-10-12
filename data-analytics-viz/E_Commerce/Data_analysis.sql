@@ -95,44 +95,46 @@ ORDER BY 2 DESC,3 DESC
 
 --What has the sale,profit been over the few months and its growth percentage annually based on category? 
 --To do so, we can find the cumulative sales over time (partitioned by category,year) ie over month,year
-with cte as (
+WITH CTE AS (
 	SELECT
 	CATEGORY,
 	SUM(AMOUNT) AS AMOUNT,
 	SUM(PROFIT) AS PROFIT,
-	YEAR(ORDER_DATE) AS Year,
-	MONTH(ORDER_DATE) AS Month
+	YEAR(ORDER_DATE) AS YEAR,
+	MONTH(ORDER_DATE) AS MONTH
 	FROM
-	Order_Details OD
-	JOIN Orders_List OL ON OD.Order_ID=OL.Order_ID
-	GROUP BY Category,YEAR(ORDER_DATE),MONTH(ORDER_DATE)
+	ORDER_DETAILS OD
+	JOIN ORDERS_LIST OL ON OD.ORDER_ID=OL.ORDER_ID
+	GROUP BY CATEGORY,YEAR(ORDER_DATE),MONTH(ORDER_DATE)
 ),
 
-cte2 as (
-	select
-	distinct
-	category,
+CTE2 AS (
+	SELECT
+	DISTINCT
+	CATEGORY,
 	AMOUNT,
-	profit,
-	sum(amount) over (partition by category,year order by month) as cum_sum,
-	sum(profit) over (partition by category,year order by month) as cum_profit,
-	year,
-	month
-	from 
-	cte
+	PROFIT,
+	SUM(AMOUNT) OVER (PARTITION BY CATEGORY,YEAR ORDER BY MONTH) AS CUM_SUM,
+	SUM(PROFIT) OVER (PARTITION BY CATEGORY,YEAR ORDER BY MONTH) AS CUM_PROFIT,
+	YEAR,
+	MONTH
+	FROM 
+	CTE
 )
 
-select
-	category,
-	year,
-	month,
-	amount,
-	profit,
-	case when lag(amount,1) over (partition by category,year order by month) is null then 'N/A'
+
+SELECT
+	CATEGORY,
+	YEAR,
+	MONTH,
+	AMOUNT,
+	PROFIT,
+	CASE WHEN LAG(AMOUNT,1) OVER (PARTITION BY CATEGORY,YEAR ORDER BY MONTH) IS NULL THEN 'N/A'
 	ELSE 
-	concat(round((amount+profit-(lag(amount,1) over (partition by category,year order by month)))*100/(cum_sum+cum_profit),2),'%') 
-	END as annual_amount_growth
-from
-cte2
+	CONCAT(ROUND((AMOUNT+PROFIT-(LAG(AMOUNT,1) OVER (PARTITION BY CATEGORY,YEAR ORDER BY MONTH)))*100/(CUM_SUM+CUM_PROFIT),2),'%') 
+	END AS ANNUAL_GROWTH
+FROM
+CTE2
+
 
 
