@@ -113,24 +113,25 @@ cte2 as (
 	distinct
 	category,
 	AMOUNT,
+	profit,
 	sum(amount) over (partition by category,year order by month) as cum_sum,
+	sum(profit) over (partition by category,year order by month) as cum_profit,
 	year,
 	month
 	from 
 	cte
 )
 
-
 select
 	category,
 	year,
 	month,
 	amount,
-	cum_sum,
+	profit,
 	case when lag(amount,1) over (partition by category,year order by month) is null then 'N/A'
 	ELSE 
-	concat(round((amount-(lag(amount,1) over (partition by category,year order by month)))*100/cum_sum,2),'%') 
-	END as annual_growth
+	concat(round((amount+profit-(lag(amount,1) over (partition by category,year order by month)))*100/(cum_sum+cum_profit),2),'%') 
+	END as annual_amount_growth
 from
 cte2
 
