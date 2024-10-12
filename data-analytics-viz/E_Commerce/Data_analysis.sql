@@ -68,3 +68,70 @@ LEFT JOIN
 WHERE 
 (C.MAX_SALES IS NOT NULL OR C2.MIN_SALES IS NOT NULL)
 order by 1,3
+
+--Return the top 5 or top 10 customers who made the most purchases
+with cte as (
+SELECT
+CustomerName,
+DENSE_RANK() OVER (ORDER BY AMOUNT DESC) AS RNK
+FROM
+Orders_List OL 
+join Order_Details OD on OL.Order_ID=OD.Order_ID
+)
+
+select customername from cte where rnk<=10
+
+--Which states have the highest sales and their profit margins?
+SELECT
+TOP 5
+STATE,
+SUM(AMOUNT) AS TOTAL_AMT,
+SUM(PROFIT) AS TOTAL_PROFIT
+FROM
+Order_Details OD
+JOIN Orders_List OL ON OD.Order_ID=OL.Order_ID
+GROUP BY STATE
+ORDER BY 2 DESC,3 DESC
+
+--What has the sale,profit been over the few months and its growth percentage annually based on category? 
+--To do so, we can find the cumulative sales over time (partitioned by category,year) ie over month,year
+with cte as (
+	SELECT
+	CATEGORY,
+	SUM(AMOUNT) AS AMOUNT,
+	SUM(PROFIT) AS PROFIT,
+	YEAR(ORDER_DATE) AS Year,
+	MONTH(ORDER_DATE) AS Month
+	FROM
+	Order_Details OD
+	JOIN Orders_List OL ON OD.Order_ID=OL.Order_ID
+	GROUP BY Category,YEAR(ORDER_DATE),MONTH(ORDER_DATE)
+),
+
+cte2 as (
+	select
+	distinct
+	category,
+	AMOUNT,
+	sum(amount) over (partition by category,year order by month) as cum_sum,
+	year,
+	month
+	from 
+	cte
+)
+
+
+select
+	category,
+	year,
+	month,
+	amount,
+	cum_sum,
+	case when lag(amount,1) over (partition by category,year order by month) is null then 'N/A'
+	ELSE 
+	concat(round((amount-(lag(amount,1) over (partition by category,year order by month)))*100/cum_sum,2),'%') 
+	END as annual_growth
+from
+cte2
+
+
