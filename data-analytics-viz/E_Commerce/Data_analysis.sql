@@ -15,7 +15,7 @@ ORDER BY 3,2;
 
 -- Which months have the target not been made/made based on category?  
 WITH CTE AS (
-	SELECT AVG(OD.AMOUNT) AS SALES
+	SELECT SUM(OD.AMOUNT) AS SALES
 	,MONTH(OL.ORDER_DATE) AS MONTHNO
 	,DATENAME(month,OL.ORDER_DATE) AS MNTH
 	,OD.Category
