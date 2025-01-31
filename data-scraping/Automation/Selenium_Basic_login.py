@@ -4,7 +4,7 @@ import time
 import datetime
 import os
 from selenium.webdriver.chrome.service import Service
-service=Service('C:\\Users\\anshu\\Downloads\\chromedriver-win64\\chromedriver-win64\\chromedriver.exe')
+service=Service(path)
 #Create a driver and return the driver
 def get_driver():
     options=webdriver.ChromeOptions()
